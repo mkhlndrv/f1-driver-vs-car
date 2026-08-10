@@ -1,0 +1,24 @@
+# local working notes (per CLAUDE.md convention)
+CLAUDE.md
+
+# data - never commit, regenerated via src/f1_skill/data.py
+data/raw/
+data/processed/
+!data/README.md
+
+# secrets
+.env
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# jupyter
+.ipynb_checkpoints/
+
+# os
+.DS_Store
