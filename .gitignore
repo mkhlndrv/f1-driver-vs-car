@@ -1,5 +1,6 @@
-# local working notes (per CLAUDE.md convention)
+# local working notes (per CLAUDE.md convention) — personal, not deliverables
 CLAUDE.md
+docs/superpowers/
 
 # data - never commit, regenerated via src/f1_skill/data.py
 data/raw/
