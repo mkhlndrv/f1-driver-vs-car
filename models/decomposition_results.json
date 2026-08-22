@@ -1,0 +1,53 @@
+{
+  "shares_of_all_variation": {
+    "lower_89": {
+      "car": 24.3,
+      "driver": 6.9,
+      "season": 0.1,
+      "unexplained": 45.2
+    },
+    "median": {
+      "car": 31.4,
+      "driver": 11.0,
+      "season": 3.1,
+      "unexplained": 52.6
+    },
+    "upper_89": {
+      "car": 39.5,
+      "driver": 17.2,
+      "season": 14.4,
+      "unexplained": 58.6
+    }
+  },
+  "shares_of_explained_variation": {
+    "lower_89": {
+      "car": 49.5,
+      "driver": 14.0,
+      "season": 0.2
+    },
+    "median": {
+      "car": 67.3,
+      "driver": 23.4,
+      "season": 6.7
+    },
+    "upper_89": {
+      "car": 80.7,
+      "driver": 35.9,
+      "season": 27.9
+    }
+  },
+  "car_to_driver_ratio": 2.842,
+  "car_to_driver_89": [
+    1.57,
+    5.27
+  ],
+  "observation_weighted_ratio": 2.75,
+  "driver_car_correlation": 0.266,
+  "convergence": {
+    "divergences": 0,
+    "worst_rhat": 1.0062764172019716,
+    "worst_rhat_parameter": "1|season_sigma",
+    "lowest_ess": 1083.8350525650426,
+    "converged": true
+  }
+}

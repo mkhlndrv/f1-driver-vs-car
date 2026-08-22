@@ -1,0 +1,22 @@
+{
+  "pr_auc": {
+    "LightGBM": 0.6505,
+    "logistic regression": 0.6488,
+    "grid slot only, no model": 0.6977
+  },
+  "log_loss": {
+    "LightGBM": 0.2769,
+    "logistic regression": 0.2378,
+    "grid slot only, no model": NaN
+  },
+  "precision": {
+    "LightGBM": 0.6202,
+    "logistic regression": 0.6822,
+    "grid slot only, no model": 0.7092
+  },
+  "recall": {
+    "LightGBM": 0.5674,
+    "logistic regression": 0.5177,
+    "grid slot only, no model": 0.7092
+  }
+}
