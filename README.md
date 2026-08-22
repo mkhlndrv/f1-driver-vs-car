@@ -326,15 +326,23 @@ never observed, driver-plus-car beats car alone (MAE 0.4216 against 0.4337) and 
 ```bash
 uv sync                 # create .venv and install from uv.lock
 make train              # the full pipeline
-make test               # 90 tests
+make test               # 96 tests
 make lint               # ruff check + format check
+make dashboard          # browse the per-driver and per-car estimates
 ```
 
 `make train` runs `python -m f1_skill`: fetch, clean, build the Q1 pace table, fit the hierarchical
 model, run diagnostics and the decomposition, fit the Elo network and the baseline, then write the
-results JSON and the figures. Each stage caches its output under `data/processed/`, so deleting one
-file reruns one stage. Adding `--sensitivity` also refits the Q1, Q2 and Q3 variants, which takes
-several minutes and is off by default.
+results JSON, the per-level rating tables and the figures. Each stage caches its output under
+`data/processed/`, so deleting one file reruns one stage. Adding `--sensitivity` also refits the Q1,
+Q2 and Q3 variants, which takes several minutes and is off by default.
+
+The dashboard reads the committed artifacts and never fits anything, which is what makes it safe to
+open on a laptop. It exists for the one thing this page cannot hold: all 43 drivers and 81
+team-seasons individually, each with its 89% interval, filterable. Raising the minimum-sessions
+slider drops the thin records and the wide intervals visibly go with them, which is partial pooling
+made concrete; filtering the cars to one constructor shows it across eight seasons. Every number on
+it is read from `models/`, so it cannot drift from what is written here.
 
 In Docker, which pins the OS and system libraries as well as the packages:
 
@@ -343,10 +351,12 @@ docker build -t f1-skill .
 docker run --rm -v "$(pwd)/data:/app/data" f1-skill
 ```
 
-**What is committed and why.** The results JSON and figures under `models/` and `reports/` are the
-deliverable, so anyone can see the answer without waiting for an MCMC fit. The datasets are not
-committed; `src/f1_skill/data.py` regenerates them. The saved posterior is not committed either, at
-about 10MB, but a cold-start refit reproduces the headline to within sampler noise.
+**What is committed and why.** The results JSON, the per-driver and per-car rating tables, and the
+figures under `models/` and `reports/` are the deliverable, so anyone can see the answer without
+waiting for an MCMC fit. The datasets are not committed; `src/f1_skill/data.py` regenerates them.
+The saved posterior is not committed either, at about 10MB, but a cold-start refit reproduces the
+headline to within sampler noise. The rating tables exist because that posterior does not ship:
+without them there would be no way to read a single driver or car off the fit without refitting.
 
 **How much of the package is exercised.** 456 of 457 statements in `src/` run under the test suite
 plus real pipeline runs: one from a cold start with `--sensitivity`, which fits and saves the
@@ -379,7 +389,9 @@ src/f1_skill/
     baseline.py        the podium classifier
   plots.py         figures, Agg backend
   __main__.py      python -m f1_skill
-models/            results JSON (committed)
+app/
+  streamlit_app.py dashboard over the committed artifacts, never refits
+models/            results JSON and the per-level rating tables (committed)
 reports/figures/   figures (committed)
 tests/             mirrors src/
 ```
