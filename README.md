@@ -368,7 +368,13 @@ without them there would be no way to read a single driver or car off the fit wi
 plus real pipeline runs: one from a cold start with `--sensitivity`, which fits and saves the
 posterior, and one reusing it, since those are different branches. The single line never reached is
 the warning that prints when R-hat exceeds its threshold, which requires a fit that fails to
-converge. CI runs `uv sync --locked`, `ruff` and the tests on every push and pull request.
+converge.
+
+**CI and deployment.** CI runs `uv sync --locked`, `ruff` and the tests on every push and pull
+request. Deployment is gated on it: the hosted dashboard watches a `release` branch that only the
+deploy workflow moves, and only to a commit CI has already gone green on. Pointing the host at
+`main` instead would publish a broken commit as readily as a good one, because the host redeploys
+on push and has no idea whether the tests passed.
 
 **On reproducibility limits.** MCMC is not bit-identical across machines or thread counts even with
 a fixed seed, so the ratio moves in the third significant figure between runs. Everything

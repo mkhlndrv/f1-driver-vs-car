@@ -1,0 +1,35 @@
+name: Deploy
+
+# Streamlit Community Cloud redeploys whichever branch it watches, on every push to it, with no
+# knowledge of whether the tests passed. Pointing it at `main` therefore publishes broken commits
+# as readily as good ones. It watches `release` instead, and only this workflow moves that branch,
+# and only after CI has gone green on the exact commit being promoted.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    branches: [main]
+    types: [completed]
+
+jobs:
+  promote:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Promote the tested commit to release
+        env:
+          TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          # The SHA CI actually ran on, not whatever main points at now: those differ whenever a
+          # second push lands while the first is still being tested.
+          echo "CI passed on $TESTED_SHA, promoting it to release"
+          git push origin "$TESTED_SHA:refs/heads/release"
+
+      # A non-fast-forward push fails the step above rather than rewriting what is deployed. That is
+      # the intended behaviour: a diverged release branch is a thing to look at, not to overwrite.
