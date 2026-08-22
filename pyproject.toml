@@ -16,16 +16,23 @@ dependencies = [
     "streamlit",
     "matplotlib",
     "scipy",
+    "h5netcdf>=1.8.1",
+    "h5py>=3.16.0",
 ]
 
 [dependency-groups]
 dev = [
     "pytest",
+    "pytest-cov>=7.1.0",
     "ruff",
 ]
 
 [tool.ruff]
 line-length = 100
+# Notebooks are executed documents, not library code. Reformatting a cell would leave its stored
+# output describing source that no longer exists, which is the staleness the analysis is careful
+# about, and import order inside a notebook that runs top to bottom is not a defect worth that.
+extend-exclude = ["notebooks", "tools"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
