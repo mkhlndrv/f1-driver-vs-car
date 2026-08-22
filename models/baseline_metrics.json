@@ -7,7 +7,7 @@
   "log_loss": {
     "LightGBM": 0.2769,
     "logistic regression": 0.2378,
-    "grid slot only, no model": NaN
+    "grid slot only, no model": null
   },
   "precision": {
     "LightGBM": 0.6202,

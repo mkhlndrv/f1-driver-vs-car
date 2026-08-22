@@ -32,12 +32,29 @@ FIT = MODELS / "model_sqrt.nc"
 RESULTS = MODELS / "decomposition_results.json"
 BASELINE_RESULTS = MODELS / "baseline_metrics.json"
 AGREEMENT = MODELS / "model_agreement.json"
+SENSITIVITY_RESULTS = MODELS / "sensitivity_results.json"
+DRIVER_RATINGS = MODELS / "driver_ratings.csv"
+CAR_RATINGS = MODELS / "car_ratings.csv"
 
 
 def _label(path):
     """For the progress lines only. `relative_to` raises outside the repo, and a tidy message is
     not worth taking a stage down for."""
     return path.relative_to(ROOT) if path.is_relative_to(ROOT) else path
+
+
+def _plain(value):
+    """A value JSON can hold, rounded to the precision the number actually carries.
+
+    Two traps. numpy scalars are not serialisable: `np.float64` subclasses float and slips through
+    while `np.bool_` does not. And `NaN` is not JSON, however willingly Python writes it: a bare
+    NaN literal is rejected by any strict parser, so a missing metric becomes null.
+    """
+    if hasattr(value, "item"):
+        value = value.item()
+    if isinstance(value, bool) or not isinstance(value, float):
+        return value
+    return None if pd.isna(value) else round(value, 4)
 
 
 def _cached(path, build, reader=pd.read_csv, **reader_kwargs):
@@ -95,12 +112,12 @@ def run(sensitivity=False):
             float((observed["var_car"] / observed["var_driver"]).median()), 3
         ),
         "driver_car_correlation": round(float(observed["correlation"].median()), 3),
-        # numpy scalars are not JSON-serialisable: np.float64 subclasses float and slips
-        # through, np.bool_ does not.
-        "convergence": {
-            key: (value.item() if hasattr(value, "item") else value)
-            for key, value in convergence.items()
-        },
+        # The lap the seconds figures are converted at. It travels with the results because a gap
+        # in seconds is meaningless without it, and it comes from the data rather than a round
+        # number anyone could guess.
+        "reference_lap_seconds": round(float(table["best_lap"].median()), 1),
+        "driver_sessions": len(table),
+        "convergence": {key: _plain(value) for key, value in convergence.items()},
     }
     print(
         f"  car : driver {results['car_to_driver_ratio']}x "
@@ -136,10 +153,35 @@ def run(sensitivity=False):
     AGREEMENT.write_text(
         json.dumps({k: round(v, 3) for k, v in agreement.items()}, indent=2) + "\n"
     )
-    BASELINE_RESULTS.write_text(json.dumps(metrics.round(4).to_dict(), indent=2) + "\n")
+    BASELINE_RESULTS.write_text(
+        json.dumps(
+            {
+                metric: {fold: _plain(value) for fold, value in scores.items()}
+                for metric, scores in metrics.to_dict().items()
+            },
+            indent=2,
+        )
+        + "\n"
+    )
 
+    # Per-level effects, exported because the posterior itself is too large to commit and these
+    # tables are the only way to read a single driver or car off the fit without refitting.
     ratings = decomposition.effects_in_seconds(idata, table, "1|drv", "drv__factor_dim")
+    ratings["sessions"] = table.groupby("drv").size().reindex(ratings.index)
     ratings["teams"] = table.groupby("drv")["team"].nunique().reindex(ratings.index)
+
+    cars = decomposition.effects_in_seconds(
+        idata, table, "1|team_season", "team_season__factor_dim"
+    )
+    cars["sessions"] = table.groupby("team_season").size().reindex(cars.index)
+    cars["drivers"] = table.groupby("team_season")["drv"].nunique().reindex(cars.index)
+    # Carried through rather than sliced back off the label, which is what a reader of the CSV
+    # would otherwise have to do to filter by either.
+    cars["team"] = table.groupby("team_season")["team"].first().reindex(cars.index)
+    cars["season"] = table.groupby("team_season")["season"].first().reindex(cars.index)
+
+    ratings.round(3).to_csv(DRIVER_RATINGS, index_label="drv")
+    cars.round(3).to_csv(CAR_RATINGS, index_label="team_season")
 
     FIGURES.mkdir(parents=True, exist_ok=True)
     plots.variance_split(summary["shares"]).savefig(FIGURES / "variance_split.png", dpi=150)
@@ -147,7 +189,10 @@ def run(sensitivity=False):
     plots.driver_ratings(ratings, table["best_lap"].median()).savefig(
         FIGURES / "driver_ratings.png", dpi=150
     )
-    print(f"  wrote {RESULTS.relative_to(ROOT)}, {AGREEMENT.relative_to(ROOT)}, 3 figures")
+    print(
+        f"  wrote {_label(RESULTS)}, {_label(AGREEMENT)}, "
+        f"{len(ratings)} driver and {len(cars)} car ratings, 3 figures"
+    )
 
     if sensitivity:
         run_sensitivity(laps)
@@ -162,7 +207,12 @@ def run_sensitivity(laps):
     fits = {
         name: sensitivity.fit_variant(table[table["within_107"]]) for name, table in tables.items()
     }
-    print(sensitivity.compare(fits).round(3).to_string())
+    comparison = sensitivity.compare(fits)
+    print(comparison.round(3).to_string())
+
+    MODELS.mkdir(parents=True, exist_ok=True)
+    SENSITIVITY_RESULTS.write_text(json.dumps(comparison.round(3).to_dict(), indent=2) + "\n")
+    print(f"  wrote {_label(SENSITIVITY_RESULTS)}")
 
 
 def main():

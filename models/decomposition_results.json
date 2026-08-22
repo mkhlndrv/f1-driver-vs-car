@@ -43,11 +43,13 @@
   ],
   "observation_weighted_ratio": 2.75,
   "driver_car_correlation": 0.266,
+  "reference_lap_seconds": 83.9,
+  "driver_sessions": 3008,
   "convergence": {
     "divergences": 0,
-    "worst_rhat": 1.0062764172019716,
+    "worst_rhat": 1.0063,
     "worst_rhat_parameter": "1|season_sigma",
-    "lowest_ess": 1083.8350525650426,
+    "lowest_ess": 1083.8351,
     "converged": true
   }
 }
