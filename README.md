@@ -1,5 +1,7 @@
 # How much of a Formula 1 result is the driver, and how much is the car?
 
+[![CI](https://github.com/mkhlndrv/f1-driver-vs-car/actions/workflows/ci.yml/badge.svg)](https://github.com/mkhlndrv/f1-driver-vs-car/actions/workflows/ci.yml)
+
 A Bayesian hierarchical model that separates driver skill from constructor strength in Formula 1
 qualifying, fitted on 3,008 driver-sessions from 2018 to 2025.
 

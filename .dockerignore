@@ -4,7 +4,14 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .ruff_cache/
+.coverage
 data/raw/
 data/processed/
 .remember/
 CLAUDE.md
+CLAUDE1.md
+
+# The fitted posterior is gitignored, so a fresh clone never has it and its container refits from
+# scratch. Copying it in when the builder happens to have one locally would make the image depend
+# on the machine that built it, which is the difference this whole setup exists to remove.
+models/*.nc
