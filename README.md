@@ -5,6 +5,9 @@
 A Bayesian hierarchical model that separates driver skill from constructor strength in Formula 1
 qualifying, fitted on 3,008 driver-sessions from 2018 to 2025.
 
+**[Open the dashboard](https://4hejmisnpfvhcwloafxfct.streamlit.app/)** to browse all 43 drivers and
+81 team-seasons with their individual estimates and 89% intervals.
+
 **The answer: car strength accounts for about 2.8 times as much variation in qualifying pace as
 driver skill**, 89% interval [1.57, 5.27]. Between the best and worst car in the data there is
 2.30s of lap time; between the best and worst driver, 1.10s.
@@ -339,12 +342,13 @@ results JSON, the per-level rating tables and the figures. Each stage caches its
 `data/processed/`, so deleting one file reruns one stage. Adding `--sensitivity` also refits the Q1,
 Q2 and Q3 variants, which takes several minutes and is off by default.
 
-The dashboard reads the committed artifacts and never fits anything, which is what makes it safe to
-open on a laptop. It exists for the one thing this page cannot hold: all 43 drivers and 81
-team-seasons individually, each with its 89% interval, filterable. Raising the minimum-sessions
-slider drops the thin records and the wide intervals visibly go with them, which is partial pooling
-made concrete; filtering the cars to one constructor shows it across eight seasons. Every number on
-it is read from `models/`, so it cannot drift from what is written here.
+The dashboard is [deployed here](https://4hejmisnpfvhcwloafxfct.streamlit.app/) and `make dashboard`
+runs the same thing locally. It reads the committed artifacts and never fits anything, which is what
+makes it safe to leave running. It exists for the one thing this page cannot hold: all 43 drivers
+and 81 team-seasons individually, each with its 89% interval, filterable. Raising the
+minimum-sessions slider drops the thin records and the wide intervals visibly go with them, which is
+partial pooling made concrete; filtering the cars to one constructor shows it across eight seasons.
+Every number on it is read from `models/`, so it cannot drift from what is written here.
 
 In Docker, which pins the OS and system libraries as well as the packages:
 
