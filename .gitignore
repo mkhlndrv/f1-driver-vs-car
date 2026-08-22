@@ -1,6 +1,7 @@
 # local working notes (per CLAUDE.md convention) — personal, not deliverables
 CLAUDE.md
-docs/superpowers/
+CLAUDE1.md
+docs/
 
 # data - never commit, regenerated via src/f1_skill/data.py
 data/raw/
@@ -17,9 +18,20 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .ruff_cache/
+.coverage
 
 # jupyter
 .ipynb_checkpoints/
 
 # os
 .DS_Store
+
+# editor / assistant local config
+.claude/
+.remember/
+
+# fitted model artifacts are large; the results JSON is the committed deliverable
+models/*.nc
+
+# local verification tooling, not part of the deliverable
+tools/
