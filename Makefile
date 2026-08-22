@@ -1,4 +1,4 @@
-.PHONY: setup lint format test train clean
+.PHONY: setup lint format test train dashboard clean
 
 setup:
 	uv sync
@@ -15,6 +15,9 @@ test:
 
 train:
 	uv run python -m f1_skill
+
+dashboard:
+	uv run streamlit run app/streamlit_app.py
 
 clean:
 	rm -rf .venv .pytest_cache .ruff_cache
